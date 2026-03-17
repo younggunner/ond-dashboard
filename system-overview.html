@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operator Next Door — System Overview</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f0f1a;
+    color: #e0ddd5;
+    line-height: 1.7;
+    padding: 0;
+  }
+
+  .slide {
+    min-height: 100vh;
+    padding: 60px 80px;
+    border-bottom: 1px solid rgba(124,58,237,0.2);
+    position: relative;
+  }
+  .slide:nth-child(even) { background: #12121f; }
+
+  .slide-number {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 13px;
+    color: rgba(124,58,237,0.5);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  h1 {
+    font-size: 42px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+  }
+  h1 span { color: #7c3aed; }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin: 40px 0 20px 0;
+  }
+  h2 span { color: #7c3aed; }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #c4b5fd;
+    margin: 30px 0 12px 0;
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: #78736b;
+    margin-bottom: 40px;
+  }
+
+  p { margin-bottom: 16px; max-width: 900px; }
+
+  .highlight { color: #c4b5fd; font-weight: 500; }
+  .gold { color: #f0c674; }
+  .green { color: #6ee7b7; }
+  .red { color: #fca5a5; }
+
+  pre {
+    background: #1a1a2e;
+    border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 8px;
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin: 16px 0 24px 0;
+    color: #c4b5fd;
+    max-width: 1000px;
+  }
+  pre .comment { color: #6b7280; }
+  pre .accent { color: #7c3aed; }
+  pre .gold { color: #f0c674; }
+  pre .green { color: #6ee7b7; }
+  pre .red { color: #fca5a5; }
+  pre .white { color: #fff; }
+
+  table {
+    border-collapse: collapse;
+    margin: 16px 0 24px 0;
+    max-width: 1000px;
+    width: 100%;
+  }
+  th, td {
+    border: 1px solid rgba(124,58,237,0.2);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 14px;
+  }
+  th {
+    background: rgba(124,58,237,0.15);
+    color: #c4b5fd;
+    font-weight: 600;
+  }
+  td { color: #e0ddd5; }
+
+  ul, ol {
+    margin: 8px 0 16px 24px;
+    max-width: 900px;
+  }
+  li { margin-bottom: 6px; }
+
+  .card-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .card {
+    background: #1a1a2e;
+    border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 12px;
+    padding: 24px;
+    flex: 1;
+    min-width: 280px;
+  }
+  .card h4 {
+    font-size: 16px;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .card p { font-size: 14px; color: #a09a92; margin-bottom: 8px; }
+
+  .tier-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .tier-dot.platinum { background: #e879f9; }
+  .tier-dot.gold { background: #facc15; }
+  .tier-dot.silver { background: #94a3b8; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-purple { background: rgba(124,58,237,0.2); color: #c4b5fd; }
+  .badge-gold { background: rgba(250,204,21,0.15); color: #f0c674; }
+  .badge-green { background: rgba(110,231,183,0.15); color: #6ee7b7; }
+  .badge-red { background: rgba(252,165,165,0.15); color: #fca5a5; }
+
+  .toc {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .toc li {
+    margin-bottom: 12px;
+    font-size: 16px;
+  }
+  .toc a {
+    color: #c4b5fd;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(124,58,237,0.3);
+    padding-bottom: 2px;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: #fff; }
+  .toc .num {
+    color: #7c3aed;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    margin-right: 8px;
+  }
+
+  .nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(15,15,26,0.95);
+    border-top: 1px solid rgba(124,58,237,0.3);
+    padding: 10px 30px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+  .nav-bar a {
+    color: #78736b;
+    text-decoration: none;
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+  .nav-bar a:hover { color: #c4b5fd; background: rgba(124,58,237,0.1); }
+
+  @media (max-width: 768px) {
+    .slide { padding: 40px 24px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 22px; }
+    pre { font-size: 11px; padding: 16px; }
+    .card-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav-bar">
+  <a href="#s0">Intro</a>
+  <a href="#s1">The Thesis</a>
+  <a href="#s2">Data Sources</a>
+  <a href="#s3">Pipeline</a>
+  <a href="#s4">Scoring</a>
+  <a href="#s5">Filters</a>
+  <a href="#s6">Enrichment</a>
+  <a href="#s7">Dashboard</a>
+  <a href="#s8">Supabase</a>
+  <a href="#s9">Architecture</a>
+</div>
+
+<!-- SLIDE 0: TITLE -->
+<div class="slide" id="s0">
+  <div class="slide-number">00</div>
+  <h1>Operator <span>Next Door</span></h1>
+  <p class="subtitle">System Architecture &amp; Developer Walkthrough</p>
+
+  <p>A geographic neighbor-matching engine that identifies oil &amp; gas operators who share properties, towns, or office buildings with our existing clients — then enriches their contacts and feeds them into a BDR kanban board for outreach.</p>
+
+  <h3>Table of Contents</h3>
+  <ul class="toc">
+    <li><span class="num">01</span> <a href="#s1">The Thesis — Why "All Sales Are Local"</a></li>
+    <li><span class="num">02</span> <a href="#s2">Data Sources — Where It All Comes From</a></li>
+    <li><span class="num">03</span> <a href="#s3">The Pipeline — 4-Phase Scrape → Score → Enrich</a></li>
+    <li><span class="num">04</span> <a href="#s4">Scoring — The 3-Tier Qualifying Matrix</a></li>
+    <li><span class="num">05</span> <a href="#s5">Filters — What's Included, What's Excluded, and Why</a></li>
+    <li><span class="num">06</span> <a href="#s6">Contact Enrichment — Email &amp; Phone Discovery</a></li>
+    <li><span class="num">07</span> <a href="#s7">The Dashboard — Map + Kanban Board</a></li>
+    <li><span class="num">08</span> <a href="#s8">Supabase — Cloud Persistence Layer</a></li>
+    <li><span class="num">09</span> <a href="#s9">Architecture — Files, Tables, Data Flow</a></li>
+  </ul>
+</div>
+
+<!-- SLIDE 1: THE THESIS -->
+<div class="slide" id="s1">
+  <div class="slide-number">01</div>
+  <h2><span>01</span> The Thesis</h2>
+
+  <p>Oil &amp; gas operators are hyper-local. They know who operates on the lease next to theirs. They eat at the same diners. They share the same field offices.</p>
+
+  <p>When a BDR calls and says <span class="highlight">"I see you're on the Lakeside Field with our client Acme Oil — how's production there?"</span> — that's a fundamentally different conversation than a cold call. The operator thinks: <em>"This person knows my world."</em></p>
+
+  <h3>Three Types of Local Connection</h3>
+
+  <div class="card-row">
+    <div class="card">
+      <h4><span class="tier-dot platinum"></span> Platinum — Same Town + Shared Property</h4>
+      <p>Target and our client literally co-operate on the same oil lease AND are in the same town. Strongest possible name-drop.</p>
+      <p><span class="gold">Script:</span> "I see you and [Client] both operate on [Property Name]. We handle their production reporting — thought you might want the same visibility."</p>
+    </div>
+    <div class="card">
+      <h4><span class="tier-dot gold"></span> Gold — Same Small Town</h4>
+      <p>Target is in the same small town (&lt;50k pop) as our client. No property connection needed — in a town of 3,000, everyone knows everyone.</p>
+      <p><span class="gold">Script:</span> "We work with [Client] there in [Town]. Small world — thought I'd reach out."</p>
+    </div>
+    <div class="card">
+      <h4><span class="tier-dot silver"></span> Silver — Shared Property Only</h4>
+      <p>Target co-operates on a property with our client, but they're in different cities. Weaker but still credible — they share the same lease.</p>
+      <p><span class="gold">Script:</span> "I noticed you and [Client] are both on [Property] in [County]. We help them track production there."</p>
+    </div>
+  </div>
+
+  <h3>The Referral Play</h3>
+  <p>Flip it around: instead of selling TO the target, ask our <span class="highlight">existing client</span> to make an introduction. "Hey [Client], do you know [Target]? You're both on Lakeside Field." Works best with Platinum and Gold.</p>
+
+  <h3>Sources vs. Targets</h3>
+  <table>
+    <tr><th></th><th>Sources (Our Clients)</th><th>Targets (Prospects)</th></tr>
+    <tr><td><strong>Who</strong></td><td>Existing GreaseBook or TinyPumper customers</td><td>Non-client operators found on shared properties or in shared towns</td></tr>
+    <tr><td><strong>How identified</strong></td><td>CSV of ShaleXP URLs (manually maintained)</td><td>Auto-discovered by scraping source operator property pages</td></tr>
+    <tr><td><strong>Count</strong></td><td>~295 source operators</td><td>~7,100 target operators</td></tr>
+    <tr><td><strong>Data</strong></td><td>Name, address, properties, wells, client type (GB/TP)</td><td>Name, address, properties, wells, production, contacts, email, phone</td></tr>
+  </table>
+</div>
+
+<!-- SLIDE 2: DATA SOURCES -->
+<div class="slide" id="s2">
+  <div class="slide-number">02</div>
+  <h2><span>02</span> Data Sources</h2>
+
+  <div class="card-row">
+    <div class="card">
+      <h4>ShaleXP <span class="badge badge-purple">PRIMARY</span></h4>
+      <p>Public oil &amp; gas database. We scrape operator pages, property pages, and well data. This is the source of truth for who operates where.</p>
+      <p><span class="highlight">Yields:</span> Operators, properties, wells, production dates, addresses</p>
+    </div>
+    <div class="card">
+      <h4>Colorado ECMC <span class="badge badge-green">CONTACTS</span></h4>
+      <p>State regulatory database. We scrape the active operators list + employee directories. Direct employee emails and phones from state filings.</p>
+      <p><span class="highlight">Yields:</span> 1,552 employee records with email/phone</p>
+    </div>
+    <div class="card">
+      <h4>Kansas KCC Connect <span class="badge badge-green">CONTACTS</span></h4>
+      <p>Kansas Corporation Commission docket system. Service lists from regulatory filings contain operator contacts.</p>
+      <p><span class="highlight">Yields:</span> 905 contacts, 491 emails</p>
+    </div>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <h4>US Census Bureau <span class="badge badge-gold">GEO</span></h4>
+      <p>ZCTA Gazetteer (zip code centroids for geocoding) + Decennial 2020 population counts (for small-town scoring).</p>
+    </div>
+    <div class="card">
+      <h4>Pipedrive CRM <span class="badge badge-gold">CRM</span></h4>
+      <p>Our CRM. We pull existing org/contact data, enrich it, push it back. Bidirectional sync.</p>
+    </div>
+    <div class="card">
+      <h4>FullEnrich API <span class="badge badge-green">ENRICHMENT</span></h4>
+      <p>Bulk email + phone enrichment. Given a name + company (+ optional domain), returns verified corporate email and mobile phone.</p>
+    </div>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <h4>TX Comptroller <span class="badge badge-gold">DISAMBIGUATION</span></h4>
+      <p>Texas state corporate officer lookup. Used to disambiguate contacts with identical names at the same company.</p>
+    </div>
+    <div class="card">
+      <h4>Million Verifier <span class="badge badge-red">VALIDATION</span></h4>
+      <p>Real-time email verification. Checks deliverability before we put an email into Pipedrive. Accepts "ok" and "catch_all"; rejects "risky" and "invalid".</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: THE PIPELINE -->
+<div class="slide" id="s3">
+  <div class="slide-number">03</div>
+  <h2><span>03</span> The Pipeline</h2>
+
+  <h3>Layer 1: ShaleXP Scraper (run.py)</h3>
+<pre>
+<span class="comment">┌─────────────────────────────────────────────────────────────────┐</span>
+<span class="comment">│</span>  <span class="white">INPUT: source_operators.csv</span> (ShaleXP URLs for our clients)     <span class="comment">│</span>
+<span class="comment">└──────────────────────────────┬──────────────────────────────────┘</span>
+                               <span class="accent">│</span>
+                     <span class="accent">Phase 1:</span> Scrape source operator pages
+                               <span class="accent">│</span>
+                               <span class="accent">▼</span>
+          Extract: company name, address, phone, properties list
+                               <span class="accent">│</span>
+                     <span class="accent">Phase 2:</span> Scrape each property page
+                               <span class="accent">│</span>
+                               <span class="accent">▼</span>
+          Find ALL operators on each property
+          Filter out our own clients → remaining = <span class="gold">TARGETS</span>
+                               <span class="accent">│</span>
+                    <span class="accent">Phase 2b:</span> Extract wells (API #, lat/lon, status)
+                               <span class="accent">│</span>
+                     <span class="accent">Phase 3:</span> Scrape each target operator page
+                               <span class="accent">│</span>
+                               <span class="accent">▼</span>
+          Enrich targets: address, phone, production, well count
+                               <span class="accent">│</span>
+<span class="comment">┌──────────────────────────────┴──────────────────────────────────┐</span>
+<span class="comment">│</span>  <span class="white">OUTPUT: 5 tables</span>                                                <span class="comment">│</span>
+<span class="comment">│</span>  source_operators · properties · target_operators                <span class="comment">│</span>
+<span class="comment">│</span>  target_links · wells                                           <span class="comment">│</span>
+<span class="comment">└─────────────────────────────────────────────────────────────────┘</span>
+</pre>
+
+  <h3>Layer 2: Operator Next Door (run_neighbors.py)</h3>
+<pre>
+<span class="comment">┌─────────────────────────────────────────────────────────────────┐</span>
+<span class="comment">│</span>  <span class="white">INPUT: Layer 1 tables</span> (source_operators, properties, etc.)     <span class="comment">│</span>
+<span class="comment">└──────────────────────────────┬──────────────────────────────────┘</span>
+                               <span class="accent">│</span>
+           <span class="accent">rescrape</span> → Re-fetch source addresses from ShaleXP
+                               <span class="accent">│</span>
+              <span class="accent">parse</span> → Raw address → city / state / zip
+                               <span class="accent">│</span>
+           <span class="accent">geocode</span> → Zip code → lat/lon (Census ZCTA centroids)
+                               <span class="accent">│</span>
+        <span class="accent">population</span> → City → population count (Census 2020)
+                               <span class="accent">│</span>
+             <span class="accent">score</span> → 3-phase scoring algorithm  <span class="gold">← THE BRAIN</span>
+                               <span class="accent">│</span>
+                               <span class="accent">▼</span>
+<span class="comment">┌─────────────────────────────────────────────────────────────────┐</span>
+<span class="comment">│</span>  <span class="white">scored_pairs</span> (~10,000 rows)                                    <span class="comment">│</span>
+<span class="comment">│</span>  Each row = one target↔source pair with tier, score, distance   <span class="comment">│</span>
+<span class="comment">└──────────────────────────────┬──────────────────────────────────┘</span>
+                               <span class="accent">│</span>
+                    <span class="accent">export</span> → CSVs by tier (platinum/gold/silver)
+                <span class="accent">dashboard2</span> → Interactive map + kanban board
+             <span class="accent">pipedrive-sync</span> → Pull/push CRM contacts
+                               <span class="accent">│</span>
+                               <span class="accent">▼</span>
+<span class="comment">┌─────────────────────────────────────────────────────────────────┐</span>
+<span class="comment">│</span>  <span class="white">OUTPUTS</span>                                                        <span class="comment">│</span>
+<span class="comment">│</span>  Kanban dashboard (GitHub Pages)                                <span class="comment">│</span>
+<span class="comment">│</span>  Enriched contacts in Pipedrive                                 <span class="comment">│</span>
+<span class="comment">│</span>  Supabase cloud persistence                                     <span class="comment">│</span>
+<span class="comment">└─────────────────────────────────────────────────────────────────┘</span>
+</pre>
+
+  <h3>Layer 3: Contact Enrichment</h3>
+<pre>
+<span class="comment">┌─────────────────────────────────────────────────────────────────┐</span>
+<span class="comment">│</span>  <span class="white">INPUT: pipedrive_contacts</span> (contacts missing email/phone)       <span class="comment">│</span>
+<span class="comment">└──────────────────────────────┬──────────────────────────────────┘</span>
+                               <span class="accent">│</span>
+          <span class="accent">Filter:</span> Skip dormant orgs (production ended 4+ yrs ago)
+          <span class="accent">Filter:</span> Skip bad names (LLC, Inc, generic keywords)
+          <span class="accent">Filter:</span> Skip non-decision-makers (if org has 4+ contacts)
+          <span class="accent">Dedup:</span>  One record per (first, last, company)
+                               <span class="accent">│</span>
+                               <span class="accent">▼</span>
+          Submit to <span class="gold">FullEnrich</span> bulk API
+            → first_name + last_name + company_name
+            → + company domain (if known)  <span class="green">← domain-boost</span>
+                               <span class="accent">│</span>
+          Poll for results (up to 5 min per batch)
+                               <span class="accent">│</span>
+                               <span class="accent">▼</span>
+          <span class="green">Email found?</span> → Validate via Million Verifier
+          <span class="green">Phone found?</span> → Store directly (pre-verified by FullEnrich)
+                               <span class="accent">│</span>
+                               <span class="accent">▼</span>
+          Write back to <span class="white">pipedrive_contacts</span> + <span class="white">Supabase</span>
+</pre>
+
+  <h3>Domain-Boost Strategy</h3>
+  <p>If we already have a verified corporate email for <em>anyone</em> at a company (e.g., <code>john@acme-oil.com</code>), we extract the domain (<code>acme-oil.com</code>) and send it to FullEnrich along with the name for unenriched contacts at the same company. This gives FullEnrich a pattern-matching signal — instead of guessing, it can try <code>jane@acme-oil.com</code>, <code>j.doe@acme-oil.com</code>, etc.</p>
+
+  <p>Domain sources: <span class="highlight">Pipedrive contacts</span> (1,530 companies) + <span class="highlight">KCC scrape</span> (+109) + <span class="highlight">ECMC scrape</span> (+24) = <span class="green">1,663 companies with known domains</span>.</p>
+</div>
+
+<!-- SLIDE 4: SCORING -->
+<div class="slide" id="s4">
+  <div class="slide-number">04</div>
+  <h2><span>04</span> The Scoring Algorithm</h2>
+
+  <p>Every target-source pair gets a <span class="highlight">tier</span> and a <span class="highlight">numeric score</span>. Three phases run in order; each can promote a pair to a higher tier.</p>
+
+<pre>
+<span class="white">PHASE 1: Property-Based Matching</span>
+
+  For each target that shares a property with a source:
+
+    Same town + shared property?
+    <span class="accent">├── YES →</span> <span class="gold">PLATINUM</span> (base 100)
+    <span class="accent">│</span>           + tiny town bonus  (pop &lt; 10k:  +10)
+    <span class="accent">│</span>           + small town bonus (pop &lt; 25k:  +5)
+    <span class="accent">│</span>
+    <span class="accent">└── NO  →</span> <span class="comment">SILVER</span> (base 70)
+              Different city, but same lease
+
+
+<span class="white">PHASE 2: Same Small Town (Geography Only)</span>
+
+  For each target NOT already matched:
+
+    Same city + state as a source?
+    <span class="accent">├── YES, pop &lt; 50k →</span> <span class="gold">GOLD</span> (base 80 + town bonus)
+    <span class="accent">│</span>
+    <span class="accent">└── NO, or pop ≥ 50k →</span> skip
+              Big cities don't count — too many operators
+
+
+<span class="white">PHASE 3: Address Proximity (stacks on top)</span>
+
+    Same street address, different suite?
+    <span class="accent">├── YES →</span> <span class="green">same-building</span> (+25 modifier)
+    <span class="accent">│</span>         "You're in Suite 200, our client is in Suite 210"
+    <span class="accent">│</span>
+    <span class="accent">├── Within 0.25 miles? →</span> <span class="green">quarter-mile</span> (+15)
+    <span class="accent">│</span>   (suppressed in cities &gt; 300k pop)
+    <span class="accent">│</span>
+    <span class="accent">└── Within 0.5 miles? →</span> <span class="green">half-mile</span> (+10)
+        (suppressed in cities &gt; 300k pop)
+</pre>
+
+  <h3>Why Suppress Proximity in Big Cities?</h3>
+  <p>In Houston (pop 2.3M), being 0.4 miles apart means nothing — that's a different neighborhood, different building, different world. In Elk City, Oklahoma (pop 12k), 0.4 miles means you're probably neighbors. Only <span class="highlight">same-building</span> proximity counts in dense metros (&gt;300k).</p>
+
+  <h3>Score Ranges</h3>
+  <table>
+    <tr><th>Tier</th><th>Score Range</th><th>What It Means</th></tr>
+    <tr><td><span class="tier-dot platinum"></span> Platinum</td><td>100–135</td><td>Same town + shared property + possible proximity boost</td></tr>
+    <tr><td><span class="tier-dot gold"></span> Gold</td><td>80–95</td><td>Same small town, no property connection</td></tr>
+    <tr><td><span class="tier-dot silver"></span> Silver</td><td>70–95</td><td>Shared property, different city (+ possible proximity)</td></tr>
+  </table>
+</div>
+
+<!-- SLIDE 5: FILTERS -->
+<div class="slide" id="s5">
+  <div class="slide-number">05</div>
+  <h2><span>05</span> Dashboard Filters — What Each One Means</h2>
+
+  <p>The dashboard map and kanban board have a filter panel. Here's exactly what each button does and what data it includes/excludes.</p>
+
+  <h3>Tier Filters (Row 1)</h3>
+  <table>
+    <tr><th>Filter</th><th>What's Included</th><th>What's Excluded</th><th>Count</th></tr>
+    <tr>
+      <td><strong>All</strong></td>
+      <td>Every target operator across all tiers. This is the unfiltered universe.</td>
+      <td>Nothing</td>
+      <td>2,787</td>
+    </tr>
+    <tr>
+      <td><strong>Local + Shared (Platinum)</strong></td>
+      <td>Targets that share a property with our client AND are in the same city. The best leads — strongest name-drop possible.</td>
+      <td>Gold-only and Silver-only targets</td>
+      <td>264</td>
+    </tr>
+    <tr>
+      <td><strong>Local (Gold)</strong></td>
+      <td>Targets in the same small town (&lt;50k pop) as our client, but NO shared property. Geographic proximity only.</td>
+      <td>Platinum and Silver targets</td>
+      <td>318</td>
+    </tr>
+    <tr>
+      <td><strong>Shared Property (Silver)</strong></td>
+      <td>Targets that share a property/lease with our client, but operate from a DIFFERENT city. Still a credible name-drop, just weaker.</td>
+      <td>Platinum and Gold targets</td>
+      <td>2,205</td>
+    </tr>
+  </table>
+
+  <p><strong>Why "Local + Shared" instead of "Platinum"?</strong> BDR-friendly language. The salesperson doesn't care about tier names — they care about the pitch angle. "Local + Shared" tells them: <em>this target is nearby AND on the same property.</em></p>
+
+  <h3>Referral Filters (Row 2)</h3>
+
+  <p>These flip the perspective. Instead of "sell TO the target," it's "ask our CLIENT to introduce us to the target."</p>
+
+  <table>
+    <tr><th>Filter</th><th>What's Included</th><th>What's Excluded</th><th>Count</th></tr>
+    <tr>
+      <td><strong>☆ Referral Local + Shared</strong></td>
+      <td>Our source clients who have BOTH local (same-town) AND shared-property connections with targets. Best referral candidates.</td>
+      <td>Sources with only one type of connection</td>
+      <td>62</td>
+    </tr>
+    <tr>
+      <td><strong>☆ Referral Local</strong></td>
+      <td>Our source clients who have same-town (Gold) connections with targets.</td>
+      <td>Sources without local connections</td>
+      <td>93</td>
+    </tr>
+    <tr>
+      <td><strong>☆ Referral Shared</strong></td>
+      <td>Our source clients who have shared-property (Silver) connections with targets.</td>
+      <td>Sources without property connections</td>
+      <td>247</td>
+    </tr>
+  </table>
+
+  <p><strong>How it works:</strong> When you click a referral filter, the map shows <span class="highlight">source operators</span> (our clients) instead of targets. Click a source marker to see which targets they're connected to. The BDR then calls the client: <em>"Hey, do you know [Target]? You're both on [Property]."</em></p>
+
+  <h3>Client Type Filters (Row 3)</h3>
+  <table>
+    <tr><th>Filter</th><th>What's Included</th><th>What's Excluded</th></tr>
+    <tr>
+      <td><strong>Both</strong></td>
+      <td>All targets regardless of which product their source client uses</td>
+      <td>Nothing</td>
+    </tr>
+    <tr>
+      <td><strong>GB Only</strong></td>
+      <td>Targets connected to <strong>GreaseBook</strong> clients only</td>
+      <td>Targets only connected to TinyPumper clients</td>
+    </tr>
+    <tr>
+      <td><strong>TP Only</strong></td>
+      <td>Targets connected to <strong>TinyPumper</strong> clients only</td>
+      <td>Targets only connected to GreaseBook clients</td>
+    </tr>
+  </table>
+
+  <p><strong>Why?</strong> GreaseBook and TinyPumper are different products with different BDR teams. A GreaseBook BDR only wants to see targets connected to GreaseBook clients (so the name-drop is relevant to their product).</p>
+
+  <h3>Numeric Filters (Bottom Row)</h3>
+  <table>
+    <tr><th>Filter</th><th>Purpose</th><th>Default</th></tr>
+    <tr>
+      <td><strong>Max Wells</strong></td>
+      <td>Exclude massive operators. A company with 5,000 wells is an enterprise — our product targets small/mid operators.</td>
+      <td>800</td>
+    </tr>
+    <tr>
+      <td><strong>Max Daily Oil</strong></td>
+      <td>Same logic — very high production = too big for our ICP.</td>
+      <td>1,000 BBL/day</td>
+    </tr>
+    <tr>
+      <td><strong>Max Avg/Well</strong></td>
+      <td>Average production per well. Helps identify stripper well operators (our sweet spot).</td>
+      <td>any (no limit)</td>
+    </tr>
+    <tr>
+      <td><strong>AND/OR toggles</strong></td>
+      <td>Whether the numeric filters combine with AND (all must be true) or OR (any one is enough).</td>
+      <td>AND</td>
+    </tr>
+  </table>
+
+  <h3>What Gets Excluded Before the Dashboard Even Sees It</h3>
+  <table>
+    <tr><th>Exclusion Rule</th><th>Why</th></tr>
+    <tr><td>Our own clients (source operators)</td><td>Can't sell to someone who's already a customer</td></tr>
+    <tr><td>Existing clients identified by ShaleXP URL match</td><td>Same — already paying us</td></tr>
+    <tr><td>Targets with no lat/lon (failed geocode)</td><td>Can't place them on a map</td></tr>
+    <tr><td>Targets with stale production (ended before Jan 2022)</td><td>Dormant/dead companies</td></tr>
+    <tr><td>Duplicate scored pairs (same target, keep best source)</td><td>One card per target on the kanban</td></tr>
+  </table>
+</div>
+
+<!-- SLIDE 6: ENRICHMENT -->
+<div class="slide" id="s6">
+  <div class="slide-number">06</div>
+  <h2><span>06</span> Contact Enrichment</h2>
+
+  <h3>The Goal</h3>
+  <p>For every target operator on the kanban board, we want: <span class="highlight">decision-maker name + verified corporate email + direct phone number</span>. Without these, the BDR can't make the call.</p>
+
+  <h3>Enrichment Strategies</h3>
+
+  <div class="card-row">
+    <div class="card">
+      <h4>1. Standard Enrichment</h4>
+      <p>Send first_name + last_name + company_name to FullEnrich. Works best for well-known companies.</p>
+      <p><span class="highlight">Hit rate:</span> ~23%</p>
+    </div>
+    <div class="card">
+      <h4>2. Domain-Boost Enrichment</h4>
+      <p>If we have a corporate email for anyone at the company, extract the domain and include it. FullEnrich can then pattern-match.</p>
+      <p><span class="highlight">Hit rate:</span> Higher (running now on 5,121 contacts)</p>
+    </div>
+    <div class="card">
+      <h4>3. State Regulatory Scrapes</h4>
+      <p>Colorado ECMC + Kansas KCC provide email/phone directly from state filings. No enrichment API needed — it's public record.</p>
+      <p><span class="highlight">Hit rate:</span> 100% (data is already there)</p>
+    </div>
+  </div>
+
+  <h3>Filters Applied Before Enrichment</h3>
+<pre>
+  Contact in pipedrive_contacts
+    <span class="accent">│</span>
+    <span class="accent">├──</span> Dormant? (production ended 4+ years ago) → <span class="red">SKIP</span>
+    <span class="accent">├──</span> Bad name? (contains LLC, Inc, "unknown", etc.) → <span class="red">SKIP</span>
+    <span class="accent">├──</span> Duplicate? (same first+last at same company) → <span class="red">SKIP</span>
+    <span class="accent">├──</span> Org has 4+ contacts AND title is junior? → <span class="red">SKIP</span>
+    <span class="accent">│</span>     (receptionist, pumper, roustabout, clerk)
+    <span class="accent">│</span>
+    <span class="accent">└──</span> Passes all filters → <span class="green">ENRICH</span>
+</pre>
+
+  <h3>Current Enrichment Stats</h3>
+  <table>
+    <tr><th>Metric</th><th>Value</th></tr>
+    <tr><td>Total contacts in DB</td><td>18,959</td></tr>
+    <tr><td>Contacts with email</td><td>11,887 (62%)</td></tr>
+    <tr><td>Domain-boost candidates</td><td>5,121 (running now)</td></tr>
+    <tr><td>Companies with known domain</td><td>1,663</td></tr>
+  </table>
+</div>
+
+<!-- SLIDE 7: DASHBOARD -->
+<div class="slide" id="s7">
+  <div class="slide-number">07</div>
+  <h2><span>07</span> The Dashboard</h2>
+
+  <p>A single-page static HTML file served via GitHub Pages. No backend server — all data is embedded at generation time, with live Supabase sync for kanban state.</p>
+
+  <h3>Two Views in One</h3>
+
+  <div class="card-row">
+    <div class="card">
+      <h4>Map View (Top)</h4>
+      <p>Leaflet.js dark map with clustered markers. Each marker = one target operator. Color = tier (purple = platinum, blue = gold, gray = silver). Click to see detail panel with source connections, shared properties, production data.</p>
+    </div>
+    <div class="card">
+      <h4>Kanban Board (Bottom)</h4>
+      <p>5-stage drag-and-drop board. Cards show operator name, city, well count, production, and contact disposition dots. Drag to move through sales stages.</p>
+    </div>
+  </div>
+
+  <h3>Kanban Stages</h3>
+<pre>
+  <span class="white">NOT CONTACTED</span>  →  <span class="gold">IN PLAY</span>  →  <span class="green">COFFEE DATE BOOKED</span>  →  <span class="comment">TRASH TO CASH</span>  →  <span class="red">DEAD FISH</span>
+     (2,590)          (0)            (0)                    (0)              (0)
+
+  <span class="comment">NOT CONTACTED:</span>  Fresh leads, untouched by BDR
+  <span class="comment">IN PLAY:</span>        Active outreach — BDR has made contact
+  <span class="comment">COFFEE DATE:</span>    Meeting booked with the operator
+  <span class="comment">TRASH TO CASH:</span>  Uses competitor software — revisit later
+  <span class="comment">DEAD FISH:</span>      Two reasons only — "Not Interested" or "Bad Data"
+</pre>
+
+  <h3>Per-Contact Activity Logging</h3>
+  <p>Each contact on a card has an activity log. BDR clicks a chip (Voicemail, Bad #, Interested, Meeting) and it logs with a timestamp. Smart prompts: clicking "Interested" offers to move the card to In Play; "Meeting" offers Coffee Date Booked.</p>
+
+  <h3>Dashboard Features</h3>
+  <ul>
+    <li><strong>Company-level notes</strong> — Yellow sticky-note style, timestamped</li>
+    <li><strong>Contact-level notes</strong> — Per-person notes with timestamps</li>
+    <li><strong>System intel</strong> — Track which competitor software the target uses (ShaleXP, ScoutFDC, etc.)</li>
+    <li><strong>Edit mode</strong> — Toggle to reveal delete buttons for intel, activity entries</li>
+    <li><strong>Time-in-stage</strong> — Shows how long each card has been in its current stage (2d, 8h, etc.)</li>
+    <li><strong>Phone formatting</strong> — All US numbers displayed as +1 (XXX) XXX-XXXX</li>
+    <li><strong>Bad number handling</strong> — Struck-out (not hidden), reversible with restore button</li>
+  </ul>
+</div>
+
+<!-- SLIDE 8: SUPABASE -->
+<div class="slide" id="s8">
+  <div class="slide-number">08</div>
+  <h2><span>08</span> Supabase — Cloud Persistence</h2>
+
+  <p>Everything lives in Supabase (PostgreSQL). The dashboard reads operator data at generation time and syncs kanban state in real-time via the Supabase JS client.</p>
+
+  <h3>What's Stored</h3>
+  <table>
+    <tr><th>Table</th><th>Rows</th><th>Purpose</th></tr>
+    <tr><td>target_operators</td><td>7,146</td><td>All prospect operators (name, address, production, wells)</td></tr>
+    <tr><td>pipedrive_contacts</td><td>18,959</td><td>Contacts with email/phone enrichment results</td></tr>
+    <tr><td>scored_pairs</td><td>9,976</td><td>Target↔source pairs with tier, score, distance</td></tr>
+    <tr><td>wells</td><td>120,193</td><td>Well locations and metadata</td></tr>
+    <tr><td>properties</td><td>6,752</td><td>Oil/gas leases linking operators</td></tr>
+    <tr><td>kanban_stages</td><td>Live</td><td>Kanban card positions, notes, intel, contact logs</td></tr>
+    <tr><td>kcc_service_contacts</td><td>905</td><td>Kansas regulatory contacts</td></tr>
+    <tr><td>co_ecmc_contacts</td><td>1,552</td><td>Colorado regulatory contacts</td></tr>
+    <tr><td>source_operators</td><td>295</td><td>Our existing clients</td></tr>
+  </table>
+
+  <h3>Kanban Persistence Model</h3>
+<pre>
+  <span class="white">kanban_stages</span> table — compound key: (target_slug, board_key)
+
+  <span class="comment">Board keys:</span>
+    <span class="accent">ond_kanban_stages</span>     → which stage each card is in
+    <span class="accent">card_notes</span>             → company-level sticky notes
+    <span class="accent">system_intel</span>           → competitor software tracking
+    <span class="accent">contact_disp:&lt;pid&gt;</span>    → per-contact activity log (VM, Bad #, etc.)
+    <span class="accent">hidden_contact:&lt;pid&gt;</span>  → contacts hidden from view
+
+  <span class="comment">Sync model:</span>
+    Browser localStorage (instant) + Supabase upsert (async)
+    On load: Supabase wins (overwrites localStorage)
+    On action: Write to both simultaneously
+</pre>
+
+  <h3>Row Level Security</h3>
+  <table>
+    <tr><th>Role</th><th>Can Read</th><th>Can Write</th></tr>
+    <tr><td>anon (dashboard)</td><td>All tables</td><td>kanban_stages only</td></tr>
+    <tr><td>service_role (backend)</td><td>All tables</td><td>All tables</td></tr>
+  </table>
+</div>
+
+<!-- SLIDE 9: ARCHITECTURE -->
+<div class="slide" id="s9">
+  <div class="slide-number">09</div>
+  <h2><span>09</span> Architecture — Files &amp; Data Flow</h2>
+
+<pre>
+<span class="white">all-sales-are-local/</span>
+<span class="accent">├─</span> run.py                          <span class="comment"># ShaleXP scraper CLI (Layer 1)</span>
+<span class="accent">├─</span> run_neighbors.py                <span class="comment"># OND pipeline CLI (Layer 2)</span>
+<span class="accent">├─</span> src/
+<span class="accent">│  ├─</span> pipeline.py                  <span class="comment"># Phase 1-3 scraping</span>
+<span class="accent">│  ├─</span> parsers.py                   <span class="comment"># HTML → structured data (regex)</span>
+<span class="accent">│  ├─</span> db.py                        <span class="comment"># Layer 1 SQLite ops</span>
+<span class="accent">│  └─</span> config.py                    <span class="comment"># URLs, paths, worker count</span>
+<span class="accent">├─</span> operator_next_door/
+<span class="accent">│  ├─</span> config.py                    <span class="comment"># Scoring thresholds, tier config</span>
+<span class="accent">│  ├─</span> db.py                        <span class="comment"># Dual SQLite/Supabase adapter</span>
+<span class="accent">│  ├─</span> matcher.py                   <span class="comment"># 3-phase scoring algorithm</span>
+<span class="accent">│  ├─</span> geocoder.py                  <span class="comment"># Zip → lat/lon, haversine math</span>
+<span class="accent">│  ├─</span> population.py                <span class="comment"># Census API population lookup</span>
+<span class="accent">│  ├─</span> map_generator.py             <span class="comment"># Dashboard HTML generation (~4,300 lines)</span>
+<span class="accent">│  ├─</span> pipedrive.py                 <span class="comment"># Pipedrive CRM integration</span>
+<span class="accent">│  ├─</span> name_fixer.py                <span class="comment"># TX Comptroller disambiguation</span>
+<span class="accent">│  └─</span> enrichment/
+<span class="accent">│     ├─</span> fullenrich.py              <span class="comment"># FullEnrich bulk API</span>
+<span class="accent">│     └─</span> (hunter, apollo, etc.)     <span class="comment"># Fallback providers</span>
+<span class="accent">├─</span> scripts/
+<span class="accent">│  ├─</span> scrape_co_ecmc.py            <span class="comment"># Colorado ECMC operator scraper</span>
+<span class="accent">│  ├─</span> scrape_kcc_connect.py        <span class="comment"># Kansas KCC docket scraper</span>
+<span class="accent">│  ├─</span> enrich_contact_info.py       <span class="comment"># Enrichment pipeline runner</span>
+<span class="accent">│  ├─</span> enrich_domain_boost.py       <span class="comment"># Domain-boost enrichment</span>
+<span class="accent">│  └─</span> supabase_schema.sql          <span class="comment"># Full DB schema</span>
+<span class="accent">├─</span> input/
+<span class="accent">│  └─</span> source_operators.csv         <span class="comment"># Client ShaleXP URLs</span>
+<span class="accent">├─</span> output/
+<span class="accent">│  └─</span> operator_dashboard.html      <span class="comment"># Generated dashboard</span>
+<span class="accent">└─</span> data/
+   <span class="accent">├─</span> shalexp.db                   <span class="comment"># Local SQLite (dev fallback)</span>
+   <span class="accent">└─</span> census/                      <span class="comment"># Zip centroids + population CSVs</span>
+</pre>
+
+  <h3>End-to-End Data Flow</h3>
+<pre>
+<span class="gold">ShaleXP.com</span>                      <span class="gold">CO ECMC</span>        <span class="gold">KS KCC</span>        <span class="gold">Census</span>
+     │                              │               │              │
+     │ scrape operators,            │ scrape         │ scrape       │ zip centroids
+     │ properties, wells            │ employees      │ dockets      │ + populations
+     │                              │               │              │
+     ▼                              ▼               ▼              ▼
+<span class="comment">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span class="comment">│</span>                     <span class="white">SUPABASE (PostgreSQL)</span>                           <span class="comment">│</span>
+<span class="comment">│</span>   16 tables  ·  ~175,000 total rows  ·  Cloud-hosted                <span class="comment">│</span>
+<span class="comment">└──────────┬──────────────────────────────────────┬───────────────────┘</span>
+           │                                      │
+           │ generate_dashboard_v2()               │ Supabase JS client
+           │ (Python → static HTML)                │ (real-time sync)
+           ▼                                      ▼
+<span class="comment">┌──────────────────────┐</span>          <span class="comment">┌──────────────────────────┐</span>
+<span class="comment">│</span> <span class="white">GitHub Pages</span>         <span class="comment">│</span>          <span class="comment">│</span> <span class="white">Kanban State</span>              <span class="comment">│</span>
+<span class="comment">│</span> Static dashboard     <span class="comment">│</span>  <span class="accent">◄────►</span>  <span class="comment">│</span> stages, notes, intel,     <span class="comment">│</span>
+<span class="comment">│</span> Map + Kanban board   <span class="comment">│</span>          <span class="comment">│</span> contact logs              <span class="comment">│</span>
+<span class="comment">└──────────────────────┘</span>          <span class="comment">└──────────────────────────┘</span>
+           │
+           │ FullEnrich API
+           ▼
+<span class="comment">┌──────────────────────┐</span>
+<span class="comment">│</span> <span class="white">Pipedrive CRM</span>        <span class="comment">│</span>
+<span class="comment">│</span> Enriched contacts    <span class="comment">│</span>
+<span class="comment">│</span> pushed back to CRM   <span class="comment">│</span>
+<span class="comment">└──────────────────────┘</span>
+</pre>
+
+  <h3>Key Design Decisions</h3>
+  <ul>
+    <li><strong>Static HTML dashboard</strong> — No web server needed. Python generates the file, GitHub Pages serves it. Supabase handles dynamic state.</li>
+    <li><strong>Dual DB adapter</strong> — <code>_use_pg = bool(SUPABASE_DSN)</code>. Same SQL works on SQLite (local dev) or Postgres (production). Placeholder swap: <code>?</code> → <code>%s</code>.</li>
+    <li><strong>Regex-based parsing</strong> — No BeautifulSoup dependency. ShaleXP HTML is messy but predictable. Regex cascades are faster and more maintainable for this specific HTML.</li>
+    <li><strong>Zip centroid geocoding</strong> — Not street-level accurate, but fast and free. Good enough for "are they in the same town?" scoring. No API key needed.</li>
+    <li><strong>Fire-and-forget Supabase writes</strong> — Dashboard writes kanban changes to Supabase asynchronously. If Supabase is down, localStorage keeps working. On next load, Supabase wins.</li>
+  </ul>
+
+  <div style="margin-top: 60px; padding: 24px; background: rgba(124,58,237,0.1); border-radius: 12px; border: 1px solid rgba(124,58,237,0.3);">
+    <p style="margin: 0; font-size: 14px; color: #a09a92;"><strong style="color: #c4b5fd;">Live Dashboard:</strong> <a href="https://younggunner.github.io/ond-dashboard/" style="color: #7c3aed;">younggunner.github.io/ond-dashboard</a></p>
+  </div>
+</div>
+
+<div style="height: 60px;"></div> <!-- spacer for nav bar -->
+
+</body>
+</html>
