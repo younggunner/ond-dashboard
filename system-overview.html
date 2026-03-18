@@ -340,6 +340,19 @@
 
   <div class="card-row">
     <div class="card">
+      <h4>TX Railroad Commission <span class="badge badge-green">CONTACTS</span></h4>
+      <p>Texas RRC Oil &amp; Gas Directory — bulk download of all active TX operators with officer names, addresses, and phone numbers. Fuzzy-matched to target_operators by company name.</p>
+      <p><span class="highlight">Yields:</span> 7,714 operators → 3,299 matched to targets</p>
+    </div>
+    <div class="card">
+      <h4>Oklahoma OCC <span class="badge badge-green">CONTACTS</span></h4>
+      <p>Oklahoma Corporation Commission active operator list (XLSX). Officer names, addresses, phone numbers for all licensed OK operators. Fuzzy-matched to target_operators.</p>
+      <p><span class="highlight">Yields:</span> 2,626 operators → 1,511 matched to targets</p>
+    </div>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
       <h4>TX Comptroller <span class="badge badge-gold">DISAMBIGUATION</span></h4>
       <p>Texas state corporate officer lookup. Used to disambiguate contacts with identical names at the same company.</p>
     </div>
@@ -750,6 +763,10 @@
     <tr><td>kanban_stages</td><td>Live</td><td>Kanban card positions, notes, intel, contact logs</td></tr>
     <tr><td>kcc_service_contacts</td><td>905</td><td>Kansas regulatory contacts</td></tr>
     <tr><td>co_ecmc_contacts</td><td>1,552</td><td>Colorado regulatory contacts</td></tr>
+    <tr><td>tx_rrc_contacts</td><td>7,714</td><td>Texas RRC operator officers (name, address, phone)</td></tr>
+    <tr><td>tx_rrc_shalexp_map</td><td>3,299</td><td>Fuzzy match: TX RRC operator → target_operators slug</td></tr>
+    <tr><td>ok_occ_contacts</td><td>2,626</td><td>Oklahoma OCC operator officers (name, address, phone)</td></tr>
+    <tr><td>ok_occ_shalexp_map</td><td>1,511</td><td>Fuzzy match: OK OCC operator → target_operators slug</td></tr>
     <tr><td>source_operators</td><td>295</td><td>Our existing clients</td></tr>
   </table>
 
@@ -809,6 +826,9 @@
 <span class="accent">│  ├─</span> scrape_kcc_connect.py        <span class="comment"># Kansas KCC docket scraper</span>
 <span class="accent">│  ├─</span> enrich_contact_info.py       <span class="comment"># Enrichment pipeline runner</span>
 <span class="accent">│  ├─</span> enrich_domain_boost.py       <span class="comment"># Domain-boost enrichment</span>
+<span class="accent">│  ├─</span> enrich_concurrent.py         <span class="comment"># FullEnrich bulk enrichment (concurrent workers)</span>
+<span class="accent">│  ├─</span> load_rrc_occ_to_supabase.py  <span class="comment"># TX RRC + OK OCC → Supabase (fuzzy match)</span>
+<span class="accent">│  ├─</span> sync_from_sheet.py           <span class="comment"># Master sync pipeline (GitHub Actions entry point)</span>
 <span class="accent">│  └─</span> supabase_schema.sql          <span class="comment"># Full DB schema</span>
 <span class="accent">├─</span> input/
 <span class="accent">│  └─</span> source_operators.csv         <span class="comment"># Client ShaleXP URLs</span>
@@ -821,12 +841,13 @@
 
   <h3>End-to-End Data Flow</h3>
 <pre>
-<span class="gold">ShaleXP.com</span>                      <span class="gold">CO ECMC</span>        <span class="gold">KS KCC</span>        <span class="gold">Census</span>
-     │                              │               │              │
-     │ scrape operators,            │ scrape         │ scrape       │ zip centroids
-     │ properties, wells            │ employees      │ dockets      │ + populations
-     │                              │               │              │
-     ▼                              ▼               ▼              ▼
+<span class="gold">ShaleXP.com</span>        <span class="gold">CO ECMC</span>    <span class="gold">KS KCC</span>    <span class="gold">TX RRC</span>    <span class="gold">OK OCC</span>    <span class="gold">Census</span>
+     │                │           │          │          │           │
+     │ scrape ops,    │ scrape    │ scrape   │ bulk     │ bulk      │ zip centroids
+     │ properties,    │ employees │ dockets  │ download │ download  │ + populations
+     │ wells          │           │          │ + fuzzy  │ + fuzzy   │
+     │                │           │          │ match    │ match     │
+     ▼                ▼           ▼          ▼          ▼           ▼
 <span class="comment">┌─────────────────────────────────────────────────────────────────────┐</span>
 <span class="comment">│</span>                     <span class="white">SUPABASE (PostgreSQL)</span>                           <span class="comment">│</span>
 <span class="comment">│</span>   16 tables  ·  ~175,000 total rows  ·  Cloud-hosted                <span class="comment">│</span>

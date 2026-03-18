@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operator Next Door — Sales Walkthrough</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF8F5;
+    --bg-warm: #F3EFE9;
+    --card: #FFF;
+    --dark: #1C1B18;
+    --gold: #C8993B;
+    --green: #4D7C5A;
+    --red: #994848;
+    --ink: #1C1B18;
+    --ink-muted: #78736B;
+    --border: #E2DDD5;
+    --purple: #7c3aed;
+    --blue: #3b82f6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.7; }
+
+  /* NAV */
+  .nav { position: fixed; top: 0; left: 0; right: 0; background: var(--dark); padding: 14px 40px; display: flex; align-items: center; justify-content: space-between; z-index: 100; }
+  .nav-brand { font-family: 'Libre Baskerville', serif; color: #fff; font-size: 18px; font-weight: 700; }
+  .nav-brand span { color: var(--gold); }
+  .nav-links { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+  .nav-links a { color: #aaa; text-decoration: none; font-size: 12px; font-weight: 500; padding: 4px 8px; border-radius: 6px; transition: all 0.15s; }
+  .nav-links a:hover { color: #fff; background: rgba(200,153,59,0.15); }
+
+  /* HERO */
+  .hero { margin-top: 56px; background: var(--dark); padding: 80px 60px 60px; text-align: center; }
+  .hero h1 { font-family: 'Libre Baskerville', serif; font-size: 44px; color: #fff; margin-bottom: 12px; }
+  .hero h1 span { color: var(--gold); }
+  .hero p { font-size: 18px; color: #aaa; max-width: 700px; margin: 0 auto 28px; line-height: 1.6; }
+  .hero-stat-row { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }
+  .hero-stat .num { font-family: 'Libre Baskerville', serif; font-size: 36px; color: var(--gold); font-weight: 700; }
+  .hero-stat .label { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  /* SECTIONS */
+  .section { padding: 60px; max-width: 1100px; margin: 0 auto; }
+  .section-warm { background: var(--bg-warm); max-width: 100%; padding: 60px calc(max((100% - 1100px) / 2, 60px)); }
+  .section-dark { background: var(--dark); max-width: 100%; padding: 60px calc(max((100% - 1100px) / 2, 60px)); }
+  .section-dark h2, .section-dark h3, .section-dark p, .section-dark li, .section-dark td { color: #e0ddd5; }
+  .section-dark .section-subtitle { color: #aaa; }
+  .section-number { font-family: 'Libre Baskerville', serif; font-size: 14px; color: var(--gold); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  h2 { font-family: 'Libre Baskerville', serif; font-size: 32px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+  .section-subtitle { font-size: 16px; color: var(--ink-muted); margin-bottom: 32px; max-width: 750px; }
+  h3 { font-family: 'Libre Baskerville', serif; font-size: 20px; font-weight: 700; color: var(--ink); margin: 36px 0 14px 0; }
+  .section-dark h3 { color: #fff; }
+  p { margin-bottom: 14px; max-width: 800px; font-size: 15px; }
+
+  /* CARDS */
+  .card-row { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0 28px 0; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; flex: 1; min-width: 260px; box-shadow: 0 2px 8px rgba(28,27,24,0.06); }
+  .section-dark .card { background: #252420; border-color: #333; }
+  .card h4 { font-family: 'Libre Baskerville', serif; font-size: 16px; color: var(--ink); margin-bottom: 10px; }
+  .section-dark .card h4 { color: #fff; }
+  .card p { font-size: 14px; color: var(--ink-muted); margin-bottom: 10px; }
+  .section-dark .card p { color: #aaa; }
+
+  /* TIER VISUAL */
+  .tier-stack { max-width: 600px; margin: 24px 0; }
+  .tier-bar { display: flex; align-items: center; gap: 16px; padding: 18px 24px; border-radius: 12px; margin-bottom: 10px; }
+  .tier-bar.platinum { background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(124,58,237,0.05)); border: 1px solid rgba(124,58,237,0.25); }
+  .tier-bar.gold { background: linear-gradient(135deg, rgba(200,153,59,0.12), rgba(200,153,59,0.05)); border: 1px solid rgba(200,153,59,0.25); }
+  .tier-bar.silver { background: linear-gradient(135deg, rgba(148,163,184,0.12), rgba(148,163,184,0.05)); border: 1px solid rgba(148,163,184,0.3); }
+  .tier-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .tier-dot.platinum { background: var(--purple); }
+  .tier-dot.gold { background: var(--gold); }
+  .tier-dot.silver { background: #94a3b8; }
+  .tier-bar .tier-name { font-weight: 700; font-size: 15px; min-width: 80px; }
+  .tier-bar .tier-desc { font-size: 13px; color: var(--ink-muted); flex: 1; }
+  .tier-bar .tier-count { font-family: 'Libre Baskerville', serif; font-weight: 700; font-size: 16px; color: var(--ink); }
+
+  /* SCRIPT BOXES */
+  .script-box { background: var(--card); border-left: 4px solid var(--gold); border-radius: 0 12px 12px 0; padding: 20px 24px; margin: 14px 0 22px 0; max-width: 800px; box-shadow: 0 2px 8px rgba(28,27,24,0.04); }
+  .section-dark .script-box { background: #252420; }
+  .script-box .label { font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .script-box p { font-size: 14px; color: var(--ink); font-style: italic; margin: 0 0 8px 0; line-height: 1.6; }
+  .script-box p:last-child { margin-bottom: 0; }
+  .section-dark .script-box p { color: #e0ddd5; }
+  .script-box .direction { font-style: normal; font-size: 12px; color: var(--green); font-weight: 600; display: block; margin: 8px 0 4px; }
+  .script-box .branch { font-style: normal; font-size: 13px; color: var(--gold); font-weight: 600; margin: 10px 0 4px; display: block; }
+
+  /* TABLES */
+  table { border-collapse: collapse; margin: 16px 0 24px 0; width: 100%; max-width: 900px; }
+  th, td { border: 1px solid var(--border); padding: 12px 16px; text-align: left; font-size: 14px; }
+  th { background: var(--bg-warm); color: var(--ink); font-weight: 600; }
+  .section-dark th { background: #333; color: #e0ddd5; }
+  .section-dark td { border-color: #444; }
+
+  /* KANBAN */
+  .kanban-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0; }
+  .kanban-col { flex: 1; min-width: 130px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 12px; text-align: center; }
+  .kanban-col h5 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; color: var(--ink-muted); }
+  .kanban-col p { font-size: 11px; color: var(--ink-muted); margin: 0; text-align: center; }
+  .kanban-col.s1 { border-top: 3px solid var(--gold); } .kanban-col.s1 h5 { color: var(--gold); }
+  .kanban-col.s2 { border-top: 3px solid var(--blue); } .kanban-col.s2 h5 { color: var(--blue); }
+  .kanban-col.s3 { border-top: 3px solid var(--green); } .kanban-col.s3 h5 { color: var(--green); }
+  .kanban-col.s4 { border-top: 3px solid var(--ink-muted); }
+  .kanban-col.s5 { border-top: 3px solid var(--red); } .kanban-col.s5 h5 { color: var(--red); }
+
+  /* FLOW STEPS */
+  .flow-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 32px; margin: 20px 0; max-width: 680px; box-shadow: 0 2px 8px rgba(28,27,24,0.06); }
+  .flow-step { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 4px; }
+  .flow-num { width: 32px; height: 32px; border-radius: 50%; background: var(--gold); color: #fff; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .flow-text { padding-top: 5px; font-size: 15px; font-weight: 500; color: var(--ink); }
+  .flow-text small { display: block; font-size: 13px; font-weight: 400; color: var(--ink-muted); margin-top: 2px; }
+  .flow-arrow { margin-left: 14px; color: var(--border); font-size: 18px; line-height: 1; margin-bottom: 4px; }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; margin: 16px 0; padding: 0; max-width: 700px; }
+  .checklist li { padding: 10px 0 10px 36px; position: relative; font-size: 15px; border-bottom: 1px solid var(--border); }
+  .section-dark .checklist li { border-bottom-color: #333; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before { content: "✓"; position: absolute; left: 0; top: 10px; width: 24px; height: 24px; border-radius: 50%; background: rgba(77,124,90,0.12); color: var(--green); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+  /* CONTACT CARD MOCK */
+  .mock-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px 28px; max-width: 560px; margin: 20px 0; box-shadow: 0 4px 16px rgba(28,27,24,0.08); }
+  .mock-card .mc-tier { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--purple); margin-bottom: 4px; }
+  .mock-card .mc-name { font-family: 'Libre Baskerville', serif; font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+  .mock-card .mc-meta { font-size: 13px; color: var(--ink-muted); margin-bottom: 12px; }
+  .mock-card .mc-connection { background: var(--bg-warm); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; }
+  .mock-card .mc-connection strong { color: var(--green); }
+  .mock-card .mc-divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+  .mock-card .mc-contact { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .mock-card .mc-contact-info { font-size: 14px; }
+  .mock-card .mc-contact-info strong { display: block; }
+  .mock-card .mc-contact-info span { font-size: 12px; color: var(--ink-muted); }
+  .mc-chips { display: flex; gap: 6px; margin-top: 8px; }
+  .mc-chip { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); color: var(--ink-muted); cursor: default; }
+  .mc-chip.active { border-color: var(--green); color: var(--green); background: rgba(77,124,90,0.06); }
+
+  /* REBUTTAL BOXES */
+  .rebuttal { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 22px; margin: 10px 0; max-width: 800px; }
+  .section-dark .rebuttal { background: #252420; border-color: #444; }
+  .rebuttal .rb-trigger { font-size: 13px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .rebuttal p { font-size: 14px; font-style: italic; margin: 0; }
+
+  .hl { color: var(--gold); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+
+  @media (max-width: 768px) {
+    .hero { padding: 60px 24px 40px; } .hero h1 { font-size: 28px; }
+    .section, .section-warm, .section-dark { padding: 40px 24px; }
+    h2 { font-size: 24px; } .card-row, .kanban-row { flex-direction: column; }
+    .nav { padding: 12px 16px; } .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-brand">Operator <span>Next Door</span></div>
+  <div class="nav-links">
+    <a href="#idea">The Idea</a>
+    <a href="#tiers">Tiers</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#workflow">Workflow</a>
+    <a href="#filters">Filters</a>
+    <a href="#contacts">Contacts</a>
+    <a href="#plays">Plays</a>
+    <a href="#rebuttals">Rebuttals</a>
+    <a href="#referrals">Referrals</a>
+    <a href="#notes">Notes</a>
+    <a href="#auto">Auto-Updates</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>How to Use <span>Operator Next Door</span></h1>
+  <p>Every feature. Every play. Everything you need to turn neighbors into customers.</p>
+  <div class="hero-stat-row">
+    <div class="hero-stat"><div class="num">2,787</div><div class="label">Total Prospects</div></div>
+    <div class="hero-stat"><div class="num">2,205</div><div class="label">Silver (Start Here)</div></div>
+    <div class="hero-stat"><div class="num">318</div><div class="label">Gold</div></div>
+    <div class="hero-stat"><div class="num">264</div><div class="label">Platinum (Save These)</div></div>
+  </div>
+</div>
+
+<!-- LOOM WALKTHROUGH VIDEO -->
+<div class="section" style="padding-bottom: 20px;">
+  <div class="section-number">Video Walkthrough</div>
+  <h2>Watch the Full Demo</h2>
+  <p class="section-subtitle">A 10-minute walkthrough of every feature in Operator Next Door — from tiers to referrals.</p>
+  <div style="position: relative; padding-bottom: 64.62829736211032%; height: 0; max-width: 900px;"><iframe src="https://www.loom.com/embed/00091095ad5940f6b3c567ed15d2c6cd" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 12px;"></iframe></div>
+</div>
+
+<!-- THE BIG IDEA -->
+<div class="section" id="idea">
+  <div class="section-number">The Big Idea</div>
+  <h2>All Sales Are Local</h2>
+  <p class="section-subtitle">Oil &amp; gas operators are hyper-local. They know who operates on the lease next to theirs. They eat at the same diners. They share the same field offices.</p>
+
+  <div class="card-row">
+    <div class="card" style="border-left: 4px solid var(--red);">
+      <h4>The Cold Call</h4>
+      <p>"Hi, I'm calling from GreaseBook&hellip;"</p>
+      <p style="color: var(--red); font-weight: 600;">"Not interested." &lt;click&gt;</p>
+      <p style="font-size:13px; color:var(--ink-muted);">You told them who you are. Their guard went up. Call's dead.</p>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--green);">
+      <h4>The Neighbor Call (Pattern Interrupt)</h4>
+      <p><strong>Step 1 &mdash; Confirm the property:</strong><br>"Do you still operate the Lakeside Field in Creek County?"</p>
+      <p style="color: var(--green); font-weight: 600;">"Yeah, that's us." (yes-yes)</p>
+      <p><strong>Step 2 &mdash; Build curiosity:</strong><br>"I ask because we're working with several operators with production right next to yours&hellip;"</p>
+      <p style="color: var(--green); font-weight: 600;">"Oh really? Like who?" (they're hooked)</p>
+      <p style="font-size:13px; color:var(--ink-muted);">You never said who you are or what you sell. They're pulling YOU in.</p>
+    </div>
+  </div>
+
+  <h3>The Psychology</h3>
+  <p>When you <strong>confirm their property first</strong>, you get them saying "yes" before their guard is up. They don't know why you're calling &mdash; and that <em>curiosity</em> is what keeps them on the line. Once they're hooked, you tiptoe into the connection: <span class="hl">"Do you know Acme is operating up there?"</span> Now they're engaged. You never had to pitch. They're asking YOU questions.</p>
+
+  <p>Operator Next Door automatically finds every non-client operator who <span class="hl">shares a property, a town, or an office building</span> with one of our existing clients &mdash; then gives you their contact info, the property name, the county, and the connection story so you can nail this opener every time.</p>
+</div>
+
+<!-- TIERS -->
+<div class="section section-warm" id="tiers">
+  <div class="section-number">01 &mdash; Three Tiers</div>
+  <h2>Not All Leads Are Equal</h2>
+  <p class="section-subtitle">Every lead has a tier that tells you how warm the intro is. <strong>Work bottom-up.</strong> Burn and learn on Silver, save the best for when you've got reps.</p>
+
+  <div class="tier-stack">
+    <div class="tier-bar silver">
+      <div class="tier-dot silver"></div>
+      <div class="tier-name">Silver</div>
+      <div class="tier-desc">Shared property, different city &mdash; same lease, credible name-drop</div>
+      <div class="tier-count">2,205</div>
+    </div>
+    <div class="tier-bar gold">
+      <div class="tier-dot gold"></div>
+      <div class="tier-name">Gold</div>
+      <div class="tier-desc">Same small town (&lt;50k pop) &mdash; everyone knows everyone</div>
+      <div class="tier-count">318</div>
+    </div>
+    <div class="tier-bar platinum">
+      <div class="tier-dot platinum"></div>
+      <div class="tier-name">Platinum</div>
+      <div class="tier-desc">Same town + shared property &mdash; strongest possible name-drop</div>
+      <div class="tier-count">264</div>
+    </div>
+  </div>
+
+  <h3>Why Start with Silver?</h3>
+  <p>Silver is your largest pool (2,205 leads) with the lowest stakes. If you stumble on a script or burn a lead, it's not a Platinum connection you wasted. By the time you've worked Silver and Gold, your scripts are tight, your rebuttals are sharp, and you're ready to close Platinum with confidence.</p>
+
+  <table>
+    <tr><th>Phase</th><th>Tier</th><th>Count</th><th>Why This Order</th></tr>
+    <tr><td><strong>Phase 1</strong></td><td>Silver</td><td>2,205</td><td>Biggest pool. Burn and learn. Get your reps in.</td></tr>
+    <tr><td><strong>Phase 2</strong></td><td>Gold</td><td>318</td><td>Warmer leads. Scripts are sharper now.</td></tr>
+    <tr><td><strong>Phase 3</strong></td><td>Platinum</td><td>264</td><td>Strongest connections. Close with precision.</td></tr>
+  </table>
+</div>
+
+<!-- DASHBOARD -->
+<div class="section" id="dashboard">
+  <div class="section-number">02 &mdash; The Dashboard</div>
+  <h2>Your Home Base</h2>
+  <p class="section-subtitle">A map and a kanban board on one page. Everything you need to find, work, and track leads.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h4>Map View (Top Half)</h4>
+      <p>Interactive map with colored markers. Each marker = one prospect.</p>
+      <p><span class="tier-dot platinum" style="width:10px;height:10px;display:inline-block;"></span> Purple = Platinum &nbsp;&nbsp; <span class="tier-dot gold" style="width:10px;height:10px;display:inline-block;"></span> Gold &nbsp;&nbsp; <span class="tier-dot silver" style="width:10px;height:10px;display:inline-block;"></span> Silver</p>
+      <p><strong>Click any marker</strong> to see: who they're connected to, shared properties, production data, and contact info.</p>
+    </div>
+    <div class="card">
+      <h4>Kanban Board (Bottom Half)</h4>
+      <p>Drag-and-drop board. Every prospect starts in "Not Contacted." Drag cards as you work leads.</p>
+      <p><strong>Everything syncs to the cloud</strong> &mdash; your whole team sees the same board in real time.</p>
+    </div>
+  </div>
+
+  <h3>The Five Stages</h3>
+  <div class="kanban-row">
+    <div class="kanban-col s1"><h5>Not Contacted</h5><p>Fresh leads</p></div>
+    <div class="kanban-col s2"><h5>In Play</h5><p>You've made contact</p></div>
+    <div class="kanban-col s3"><h5>Coffee Date Booked</h5><p>Meeting scheduled</p></div>
+    <div class="kanban-col s4"><h5>Trash to Cash</h5><p>Uses competitor &mdash; revisit later</p></div>
+    <div class="kanban-col s5"><h5>Dead Fish</h5><p>"Not interested" or "bad data" ONLY</p></div>
+  </div>
+
+  <table>
+    <tr><th>Movement</th><th>When</th></tr>
+    <tr><td>Not Contacted &rarr; In Play</td><td>You've talked to someone or left a voicemail</td></tr>
+    <tr><td>In Play &rarr; Coffee Date Booked</td><td>Meeting is on the calendar</td></tr>
+    <tr><td>Any &rarr; Trash to Cash</td><td>They use ScoutFDC, OilField BI, etc. Park and revisit.</td></tr>
+    <tr><td>Any &rarr; Dead Fish</td><td>"Not interested" or data is bad. TWO reasons only.</td></tr>
+  </table>
+</div>
+
+<!-- DAILY WORKFLOW -->
+<div class="section section-warm" id="workflow">
+  <div class="section-number">03 &mdash; Your Daily Workflow</div>
+  <h2>How to Work Leads</h2>
+  <p class="section-subtitle">Step-by-step for your daily call block.</p>
+
+  <div class="flow-box">
+    <div class="flow-step"><div class="flow-num">1</div><div class="flow-text">Open the dashboard &mdash; filter to your product (GB or TP)<small>Each BDR only sees leads relevant to their product</small></div></div>
+    <div class="flow-arrow">&darr;</div>
+    <div class="flow-step"><div class="flow-num">2</div><div class="flow-text">Start with Silver tier<small>Biggest pool, lowest stakes &mdash; get your reps in</small></div></div>
+    <div class="flow-arrow">&darr;</div>
+    <div class="flow-step"><div class="flow-num">3</div><div class="flow-text">Click a card in "Not Contacted"<small>Read the connection: which client, which property, which town</small></div></div>
+    <div class="flow-arrow">&darr;</div>
+    <div class="flow-step"><div class="flow-num">4</div><div class="flow-text">Pick the right play for the situation<small>Pattern Interrupt for cold OND leads. Give 1000 Get 1000 when calling into your existing clients.</small></div></div>
+    <div class="flow-arrow">&darr;</div>
+    <div class="flow-step"><div class="flow-num">5</div><div class="flow-text">Make the call &mdash; name-drop the shared client/property<small>Use the tier-appropriate opener from the play scripts below</small></div></div>
+    <div class="flow-arrow">&darr;</div>
+    <div class="flow-step"><div class="flow-num">6</div><div class="flow-text">Log the outcome<small>Click Voicemail, Bad #, Interested, or Meeting on the contact chip</small></div></div>
+    <div class="flow-arrow">&darr;</div>
+    <div class="flow-step"><div class="flow-num">7</div><div class="flow-text">Move the card to the right stage<small>Interested &rarr; In Play. Meeting booked &rarr; Coffee Date. Competitor &rarr; Trash to Cash.</small></div></div>
+    <div class="flow-arrow">&darr;</div>
+    <div class="flow-step"><div class="flow-num">8</div><div class="flow-text">Work up: Silver &rarr; Gold &rarr; Platinum<small>When Silver is worked, Gold is next. Platinum is your closer.</small></div></div>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="section" id="filters">
+  <div class="section-number">04 &mdash; Filters</div>
+  <h2>Find the Right Leads Fast</h2>
+  <p class="section-subtitle">Don't wade through 2,800 leads. Filter to what matters for your next call block.</p>
+
+  <table>
+    <tr><th>Filter</th><th>What It Does</th><th>When to Use It</th></tr>
+    <tr><td><strong>Tier</strong></td><td>Show only Silver, Gold, or Platinum</td><td>Start with Silver &mdash; work up over time</td></tr>
+    <tr><td><strong>GB Only / TP Only</strong></td><td>Show leads connected to your product's clients</td><td>Always &mdash; so the name-drop matches your product</td></tr>
+    <tr><td><strong>Referral Mode</strong></td><td>Flips view &mdash; shows YOUR CLIENTS who can intro you</td><td>When you want warm intros, not cold calls</td></tr>
+    <tr><td><strong>Max Wells / Max Oil</strong></td><td>Exclude operators too big for our ICP</td><td>Keep defaults unless targeting a specific size</td></tr>
+  </table>
+</div>
+
+<!-- CONTACT CARDS -->
+<div class="section section-warm" id="contacts">
+  <div class="section-number">05 &mdash; Contact Cards</div>
+  <h2>Everything You Need on One Card</h2>
+  <p class="section-subtitle">Every prospect card gives you the connection story AND the contact info to make the call.</p>
+
+  <div class="mock-card">
+    <div class="mc-tier">&#9733; Platinum</div>
+    <div class="mc-name">Acme Petroleum LLC</div>
+    <div class="mc-meta">Elk City, OK &nbsp;&middot;&nbsp; 42 wells &nbsp;&middot;&nbsp; 85 BOE/day &nbsp;&middot;&nbsp; &#9202; Not Contacted (3d)</div>
+    <div class="mc-connection">
+      Connected to: <strong>Your Client Name</strong><br>
+      Via: Lakeside Field (shared property) + same town (Elk City, pop 12,384)
+    </div>
+    <hr class="mc-divider">
+    <div class="mc-contact">
+      <div class="mc-contact-info">
+        <strong>John Smith</strong> &mdash; President
+        <span>&#128222; +1 (405) 555-1234 &nbsp;&middot;&nbsp; &#9993; john@acme-petroleum.com</span>
+      </div>
+    </div>
+    <div class="mc-chips">
+      <div class="mc-chip">VM</div>
+      <div class="mc-chip">Bad #</div>
+      <div class="mc-chip active">Interested</div>
+      <div class="mc-chip">Meeting</div>
+    </div>
+    <hr class="mc-divider">
+    <div class="mc-contact">
+      <div class="mc-contact-info">
+        <strong>Jane Doe</strong> &mdash; Operations Manager
+        <span>&#128222; +1 (405) 555-5678 &nbsp;&middot;&nbsp; &#9993; jane@acme-petroleum.com</span>
+      </div>
+    </div>
+    <div class="mc-chips">
+      <div class="mc-chip">VM</div>
+      <div class="mc-chip">Bad #</div>
+      <div class="mc-chip">Interested</div>
+      <div class="mc-chip">Meeting</div>
+    </div>
+  </div>
+
+  <h3>Activity Chips</h3>
+  <ul class="checklist">
+    <li><strong>Voicemail</strong> &mdash; You called, left a VM. Timestamps automatically.</li>
+    <li><strong>Bad #</strong> &mdash; Number doesn't work. Strikes it out (doesn't delete &mdash; reversible).</li>
+    <li><strong>Interested</strong> &mdash; They want to hear more. Prompts you to move card to "In Play."</li>
+    <li><strong>Meeting</strong> &mdash; Meeting booked. Prompts you to move card to "Coffee Date Booked."</li>
+  </ul>
+</div>
+
+<!-- THE PLAYS -->
+<div class="section section-dark" id="plays">
+  <div class="section-number">06 &mdash; The Plays</div>
+  <h2>Your Playbook</h2>
+  <p class="section-subtitle">Pick the right play for the situation. Every word is tested. Trust the script.</p>
+
+  <!-- PLAY 1: PATTERN INTERRUPT -->
+  <h3>Play 1: Pattern Interrupt (Cold Outreach)</h3>
+  <p>Use on: <strong>Any OND lead you've never spoken to.</strong> This is your bread and butter for Silver and Gold leads.</p>
+  <p style="color:var(--gold); font-weight:600;">Golden rule: Never reveal who you are or what you sell. Confirm the property first &rarr; get them saying yes &rarr; build curiosity &rarr; tiptoe into the pitch.</p>
+
+  <div class="script-box">
+    <div class="label">Pattern Interrupt &mdash; Opener</div>
+    <p><span class="direction">[Familiar tone &mdash; sound like someone they should know. Add natural stutters.]</span></p>
+    <p>"Hey, uh, {PROSPECT}, it's&hellip; it's {FIRST NAME}. {FIRST LAST} &mdash; I'm hoping you can help me out for a moment?"</p>
+    <p><span class="direction">[Pause &mdash; let them respond. Confused tone on next line.]</span></p>
+    <p>"If you could clarify something for me&hellip; Curious &mdash; do you guys still operate the {PROPERTY} in {COUNTY}, {STATE}?"</p>
+    <p><span class="direction">[Pause &mdash; let them confirm. They say "yes." You've got your first yes.]</span></p>
+  </div>
+
+  <div class="script-box">
+    <div class="label">Pattern Interrupt &mdash; Discovery</div>
+    <p>"I ask because we're working with several operators with production right next to yours, and I was curious &mdash; how are you guys managing production updates from your pumpers? Is it text messages, calls, Excel &mdash; what's the situation like?"</p>
+    <p><span class="direction">[Let the prospect talk. LISTEN. Note their exact METHOD.]</span></p>
+    <p>"Got it &mdash; that makes sense. And how often are they submitting data &mdash; once a week, once a month, or does it vary?"</p>
+    <p><span class="direction">[Listen again. Note exact TIME FRAME wording.]</span></p>
+  </div>
+
+  <div class="script-box">
+    <div class="label">Pattern Interrupt &mdash; Positioning</div>
+    <p>"That's interesting because most operators are getting their data through {THEIR METHOD} every {THEIR TIME FRAME}, and what they told us was that getting everyone in the operation on the same page was an enormous hassle."</p>
+    <p>"So what they did was simply have their pumpers download the Greasebook app on their phones and submit all their production updates through it &mdash; and not only did they reduce downtime by streamlining communication with the field, they were also able to dial in production and produce more oil because of it."</p>
+  </div>
+
+  <div class="script-box">
+    <div class="label">Pattern Interrupt &mdash; Close</div>
+    <p>"But I'm getting ahead of myself here &mdash; Brandon's actually the one who led these projects with those operators. Would you be against him giving you a quick call sometime this week to explain it better?"</p>
+    <p>"Perfect &mdash; he's got some time open this week. He's available {DAY 1} at {TIME 1} or {DAY 2} at {TIME 2} &mdash; what works better for you?"</p>
+    <p>"Ok, and you're on Central Time, right?"</p>
+    <p>"Awesome &mdash; and is {EMAIL ON FILE} still the best email for you?"</p>
+    <p><span class="direction">[Calendar confirmation:]</span></p>
+    <p>"Perfect. You'll see the invite from Brandon hit your inbox in just a minute. Do me a quick favor &mdash; open up your email real fast and just make sure you got it. For whatever reason, it hasn't been showing up in people's inboxes lately. You see it there? Great &mdash; go ahead and click 'Accept' so we know it went through and you're locked in."</p>
+  </div>
+
+  <!-- PLAY 2: GIVE 2000 GET 2000 (REFERRAL ENGINE) -->
+  <h3>Play 2: Give 1000 Get 1000 (Referral Engine)</h3>
+  <p>Use on: <strong>Your existing Greasebook clients who are connected to OND prospects.</strong> You're calling INTO your client base &mdash; not cold prospects. The dashboard's Referral filter shows you which clients are neighbors to which prospects.</p>
+  <p style="color:var(--gold); font-weight:600;">This is the warmest play in the book. Your client already loves the app. Their neighbor is on the OND board. You're handing them $1,000 to make an introduction they'd probably make anyway.</p>
+
+  <div class="script-box">
+    <div class="label">Give 1000 Get 1000 &mdash; G2 Check-In</div>
+    <p><span class="direction">[Start with a genuine check-in. You need to know they're happy before you ask for a favor.]</span></p>
+    <p>"Hey {CLIENT}, it's {YOUR NAME} &mdash; how's it going?"</p>
+    <p><span class="direction">[Brief small talk &mdash; this is YOUR client, not a cold call. Be real.]</span></p>
+    <p>"Hey, real quick &mdash; I just wanted to check in. How's the Greasebook been working for you guys? If you had to rate it 1 to 10, what would you say?"</p>
+    <p><span class="direction">[Listen. Note the score.]</span></p>
+    <p><span class="branch">Score 7 or below:</span></p>
+    <p>"Totally fair &mdash; appreciate you being straight with me. We want you at a 10. Would you be against me having someone from our team reach out to sort that out? They're great &mdash; usually get things dialed in real quick."</p>
+    <p><span class="direction">[Schedule CS callback. Do NOT pitch Give 2000 to an unhappy client. Fix their experience first. Come back later.]</span></p>
+    <p><span class="branch">Score 8 or higher &mdash; pivot to Give 2000:</span></p>
+    <p>"Love hearing that."</p>
+  </div>
+
+  <div class="script-box">
+    <div class="label">Give 1000 Get 1000 &mdash; The Referral Ask</div>
+    <p><span class="direction">[Curious tone &mdash; you're asking, not pitching.]</span></p>
+    <p>"Hey, so &mdash; just curious &mdash; have you heard about our Give 1000 Get 1000 program?"</p>
+    <p><span class="branch">If no (most will say no):</span></p>
+    <p>"So basically, if you refer an operator to Greasebook and they move forward, we give them $1,000 to get started &mdash; and you get $1,000 in credit on your Greasebook too."</p>
+    <p><span class="direction">[Pause &mdash; let it land. Don't oversell it.]</span></p>
+    <p><span class="branch">If yes:</span></p>
+    <p>"Oh good &mdash; have you used it yet?"</p>
+    <p><span class="direction">[Listen. If they haven't, continue below.]</span></p>
+  </div>
+
+  <div class="script-box">
+    <div class="label">Give 1000 Get 1000 &mdash; The Name-Drop</div>
+    <p><span class="direction">[Now use the OND connection. You KNOW the prospect is their neighbor &mdash; the dashboard told you.]</span></p>
+    <p>"The reason I bring it up &mdash; I've actually been trying to get a hold of {PROSPECT} over at {PROSPECT COMPANY}. I think you guys are both on the {PROPERTY} in {COUNTY}?"</p>
+    <p><span class="direction">[Pause &mdash; let them confirm. They WILL know them. That's the whole point of OND.]</span></p>
+    <p>"Yeah &mdash; so we've been wanting to connect with them. Do you know {PROSPECT NAME} at all?"</p>
+    <p><span class="direction">[Listen. They'll tell you what they know &mdash; this is intel gold.]</span></p>
+    <p><span class="branch">If they know them:</span></p>
+    <p>"That's what I figured. Would you mind if I mentioned your name when I reach out to them? And honestly, if they end up moving forward, that'd be $1,000 for both of you."</p>
+    <p><span class="branch">If they offer to make the intro:</span></p>
+    <p>"That would be incredible. No pressure at all &mdash; even just a heads-up text that I might be calling goes a long way."</p>
+    <p><span class="direction">[If they agree to intro &mdash; get the timing: "When do you think you'd reach out?" Then follow up accordingly.]</span></p>
+    <p><span class="branch">If they don't know them well:</span></p>
+    <p>"No worries at all. Would you mind if I just mentioned your name when I reach out? Just to say, hey, we work with your neighbor."</p>
+  </div>
+
+  <div class="script-box">
+    <div class="label">Give 1000 Get 1000 &mdash; After the Client Call</div>
+    <p><span class="direction">[Now call the PROSPECT using Play 1 (Pattern Interrupt) &mdash; but you've got a warm referral in your back pocket.]</span></p>
+    <p><span class="direction">[If the client agreed to make an intro, wait for them to do it first. Then call:]</span></p>
+    <p>"{CLIENT} suggested I give you a call. He mentioned you guys are both on {PROPERTY}. I was just curious &mdash; how are you guys managing production updates from your pumpers?"</p>
+    <p><span class="direction">[Then follow the Pattern Interrupt discovery &rarr; positioning &rarr; close sequence from Play 1.]</span></p>
+  </div>
+
+  <!-- SUB-PLAYS HEADER -->
+  <h3 style="margin-top:56px; padding-top:32px; border-top: 1px solid #444;">Sub-Plays &mdash; Situational Tools</h3>
+  <p class="section-subtitle">These aren't standalone plays &mdash; they're tools you'll use <em>inside</em> any play. You'll hit a voicemail, run into a gatekeeper, or have a no-show. Here's how you handle each one.</p>
+
+  <!-- SUB-PLAY: VOICEMAIL -->
+  <h3>Voicemail</h3>
+  <p>Use when: <strong>You call an OND lead and get their voicemail.</strong> Applies to any tier, any play.</p>
+
+  <div class="script-box">
+    <div class="label">Voicemail &mdash; Script</div>
+    <p><span class="direction">[Calm, unhurried, matter-of-fact. No pitch. The curiosity gap does the work.]</span></p>
+    <p>"Hey {Prospect}, it's {Your First Name}. I was calling about some of the operators up on {PROPERTY} in {COUNTY}. Give me a call back &mdash; {Your phone number}."</p>
+    <p><span class="direction">[That's it. Hang up. No company name. No product. No "hope to hear from you." The property reference creates the curiosity gap &mdash; they'll call back wondering who's doing what on their lease.]</span></p>
+  </div>
+
+  <!-- SUB-PLAY: GATEKEEPER -->
+  <h3>Gatekeeper</h3>
+  <p>Use when: <strong>A receptionist or assistant answers.</strong> Get through without triggering their "sales call" filter.</p>
+
+  <div class="script-box">
+    <div class="label">Gatekeeper &mdash; Script</div>
+    <p><span class="direction">[Familiar tone &mdash; sound like you belong, not like a cold caller.]</span></p>
+    <p>"Hey {GATEKEEPER}, this is {YOUR FULL NAME} &mdash; I was wondering if you could help me out for a moment&hellip;"</p>
+    <p><span class="direction">[Wait for response]</span></p>
+    <p>"Well, I'm looking for {PROSPECT FULL NAME} as I understand he's responsible for the pumpers there &mdash; can you put me through?"</p>
+  </div>
+
+  <!-- SUB-PLAY: COFFEE NO SHOW -->
+  <h3>Coffee No Show</h3>
+  <p>Use when: <strong>A prospect booked a meeting but didn't show.</strong> 2-3 reschedule attempts within 5 business days.</p>
+
+  <div class="script-box">
+    <div class="label">Coffee No Show &mdash; Script</div>
+    <p>"Hey {Prospect}? This is {Your Name}, I just had time to get back with you. Hey we spoke &mdash; I wanna say a few days ago &mdash; about some of the producers we had partnered with next to your production? &hellip;and how from my notes it looks like you were communicating with your pumpers via {Method} just like they were &mdash; is this ringing any bells?"</p>
+    <p><span class="direction">[Wait for response]</span></p>
+    <p>"Perfect, we'd love to show you how they cut their downtime and got a nice pop in production by streamlining communication with their pumpers &mdash; and I just had another slot open up&hellip; would you be against scheduling for either {TIME} or {TIME}?"</p>
+  </div>
+
+  <!-- HANDLING SCRIPTS HEADER -->
+  <h3 style="margin-top:56px; padding-top:32px; border-top: 1px solid #444;">Handling Scripts &mdash; When the Conversation Goes Here</h3>
+  <p class="section-subtitle">Sometimes a prospect brings up something you need to be trained for. These aren't plays you initiate &mdash; they're reactive scripts for when the conversation takes a turn.</p>
+
+  <!-- HANDLING: SCADA REPLACEMENT -->
+  <h3>"We Already Have SCADA / Telemetry / Remote Monitoring"</h3>
+  <p>Trigger: <strong>Prospect says they already have remote monitoring.</strong> Don't fight SCADA &mdash; position TinyPumper as the faster, cheaper complement.</p>
+
+  <div class="script-box">
+    <div class="label">SCADA Handling &mdash; Full Script</div>
+    <p>"Got it &mdash; you're running SCADA. A bunch of folks we work with are in the same spot."</p>
+    <p>"Mind if I ask you two quick things I've been wondering about?"</p>
+    <p>"When something breaks, like a tank hits high level or a well stops producing &mdash; how do you typically find out? System alert? Pumper call? Next lease run? What's that like?"</p>
+    <p><span class="direction">[Let them talk. LISTEN. Note HOW they get alerts.]</span></p>
+    <p>"Right&hellip; And how fast do you usually get that info? Is it real-time, a few hours, or more like the next day?"</p>
+    <p><span class="direction">[Listen. Note the TIME LAG.]</span></p>
+    <p>"It's interesting you say that because most folks are still relying on {THEIR METHOD} and getting it maybe {THEIR TIME FRAME} later. By then the tank's already full or the well's been offline too long."</p>
+    <p>"So what some of 'em are doing now is plugging in this thing called TinyPumper &mdash; installs in 8 minutes, no techs, no wires, no setup fees. Just slap it on and it starts feeding hourly updates straight to your phone or computer."</p>
+    <p>"It runs on solar with backup &mdash; so weather doesn't matter. It just works."</p>
+    <p>"Compared to SCADA? You catch problems almost in real time &mdash; instead of waiting hours or even 'til the next day. And if something breaks, fixing it costs about 5% of what SCADA guys usually pay."</p>
+    <p>"But I'm getting ahead of myself here &mdash; Greg, he is the Founder of TinyPumper and it is already out there, monitoring thousands of assets right now. Would you be against him giving you a quick call sometime this week to explain it better?"</p>
+  </div>
+</div>
+
+<!-- REBUTTALS -->
+<div class="section" id="rebuttals">
+  <div class="section-number">07 &mdash; Rebuttals</div>
+  <h2>When They Push Back</h2>
+  <p class="section-subtitle">These are tested responses. Don't improvise &mdash; use the words.</p>
+
+  <div class="rebuttal">
+    <div class="rb-trigger">"Not Interested"</div>
+    <p>"Ohhh yeah and I apologize {Prospect} I REALLY didn't mean to offend you."</p>
+    <p style="margin-top: 6px;">[3-second pause]</p>
+    <p style="margin-top: 6px;">"And just so you're aware {Prospect} I'm not even sure if we could help you yet. We'd have to understand a bit more about how you're currently managing production and kind of what that looks like because maybe you guys are better off just sticking to what you have now."</p>
+    <p style="margin-top: 6px;">"That's why I was curious, you know, how are you guys currently communicating with your pumpers&hellip; Is it text, email, Excel, what's the situation like?"</p>
+  </div>
+
+  <div class="rebuttal">
+    <div class="rb-trigger">"How Much Does It Cost?"</div>
+    <p>"Oh yea yea yea, we can go over all the different price points for sure, now just so you're aware {Prospect} we don't have like one product with one price point, it all depends on a few things that we'd have to understand from your side like if you're interested in pumper GPS tracking, an alert engine, a downtime tracker, and things like that, and once we understand all that, Carlos can go through all the different options we have for our operators, would that help you more if we did that?"</p>
+  </div>
+
+  <div class="rebuttal">
+    <div class="rb-trigger">"We're Using a Competitor"</div>
+    <p>"That's actually the reason I'm calling&hellip; We have a ton of experience with {Competitor}, I'm curious, what do you like best about their solution?"</p>
+    <p style="margin-top: 6px;">[Listen]</p>
+    <p style="margin-top: 6px;">"In a perfect world, what would you change?"</p>
+    <p style="margin-top: 6px;">[Listen]</p>
+    <p style="margin-top: 6px;">"That's interesting because I've talked to dozens of operators who just like you also say {mention their issue or highlight}. And, after seeing the Greasebook we've had half a dozen operators switch in the last few months&hellip; and they've all told us the same 3 key reasons for doing so."</p>
+    <p style="margin-top: 6px;">"But, {Prospect}, I'm getting ahead of myself here. Brandon is the one who leads this project, and he can walk you through everything. Would you be against him giving you a quick call sometime this week to explain it further?"</p>
+  </div>
+
+  <div class="rebuttal">
+    <div class="rb-trigger">"We Have SCADA / Telemetry / Remote Monitoring"</div>
+    <p>"That's actually the reason I'm calling&hellip; Most operators who come to us are also getting their data through {SCADA/Telemetry} &mdash; and what they told us was that consolidating all the data from {system} with the updates they get from the Pumpers was creating quite a headache."</p>
+    <p style="margin-top: 6px;">"So what they did was simply connect their {system} to the Greasebook AND have their pumpers submit all their production data through the Greasebook app on their phones so everything was in ONE PLACE, and that COMPLETELY streamlined their operations."</p>
+  </div>
+
+  <div class="rebuttal">
+    <div class="rb-trigger">"What is Greasebook?"</div>
+    <p>"That's actually the reason I'm calling&hellip; So how are you guys currently getting production updates from the field? Is it texts, phone calls, Excel &mdash; what's the setup like?"</p>
+    <p style="margin-top: 6px;"><span style="font-style:normal; font-size:12px; color:var(--green); font-weight:600;">[Let them answer. Then:]</span></p>
+    <p style="margin-top: 6px;">"Got it &mdash; so {THEIR METHOD}. Most operators we work with were doing the same thing. What they told us was getting everyone on the same page was the hardest part. So they just had their pumpers download an app and submit everything through their phones &mdash; gauges, pressures, run tickets, pictures &mdash; and it all shows up in real time on a dashboard."</p>
+    <p style="margin-top: 6px;">"But I'm getting ahead of myself &mdash; would you be against having Brandon walk you through how it actually works?"</p>
+  </div>
+
+  <div class="rebuttal">
+    <div class="rb-trigger">"Who Have You Partnered With Near Us?"</div>
+    <p>"Ah man, we have over 600 operators on the Greasebook at the moment, but Brandon is the one who heads that project, and he can share the list of operators we are working with around you. Can I have him give you a quick follow up call sometime this week to explain it better?"</p>
+  </div>
+</div>
+
+<!-- REFERRAL PLAY -->
+<div class="section section-dark" id="referrals">
+  <div class="section-number">08 &mdash; The Referral Engine</div>
+  <h2>Give 1000 Get 1000</h2>
+  <p class="section-subtitle">This is Play 2 in action. Use the dashboard's Referral filter to find which of your clients are neighbors to which prospects &mdash; then run the Give 1000 Get 1000 script.</p>
+
+  <div class="flow-box" style="background: #252420; border-color: #444;">
+    <div class="flow-step"><div class="flow-num">1</div><div class="flow-text" style="color: #e0ddd5;">Toggle "Referral" filter on the dashboard<small style="color:#aaa;">Map now shows YOUR CLIENTS (not prospects)</small></div></div>
+    <div class="flow-arrow" style="color:#444;">&darr;</div>
+    <div class="flow-step"><div class="flow-num">2</div><div class="flow-text" style="color: #e0ddd5;">Click a client marker<small style="color:#aaa;">See which OND prospects they're connected to</small></div></div>
+    <div class="flow-arrow" style="color:#444;">&darr;</div>
+    <div class="flow-step"><div class="flow-num">3</div><div class="flow-text" style="color: #e0ddd5;">Run the Give 1000 Get 1000 script (Play 2)<small style="color:#aaa;">G2 check-in &rarr; Give 1000 pitch &rarr; name-drop the prospect</small></div></div>
+    <div class="flow-arrow" style="color:#444;">&darr;</div>
+    <div class="flow-step"><div class="flow-num">4</div><div class="flow-text" style="color: #e0ddd5;">Call the prospect WITH the referral<small style="color:#aaa;">Use Pattern Interrupt (Play 1) &mdash; but now you've got the client's name in your pocket</small></div></div>
+  </div>
+
+  <h3>Why It Works</h3>
+  <div class="card-row">
+    <div class="card" style="background:#252420; border-color:#444;">
+      <h4 style="color:#fff;">For Your Client</h4>
+      <p style="color:#aaa;">They get $1,000 in Greasebook credit for an introduction they'd probably make anyway. Their neighbor is literally on the same lease.</p>
+    </div>
+    <div class="card" style="background:#252420; border-color:#444;">
+      <h4 style="color:#fff;">For the Prospect</h4>
+      <p style="color:#aaa;">$1,000 to get started &mdash; lowers the barrier. Plus they're hearing about it from a neighbor they trust, not a cold caller.</p>
+    </div>
+    <div class="card" style="background:#252420; border-color:#444;">
+      <h4 style="color:#fff;">For You</h4>
+      <p style="color:#aaa;">The warmest possible intro. Your client does the selling for you. OND tells you exactly who to pair.</p>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>Referral Filter</th><th>What You See</th></tr>
+    <tr><td>&#9734; Referral Local + Shared</td><td>Clients with BOTH same-town AND shared-property connections. Best referral candidates.</td></tr>
+    <tr><td>&#9734; Referral Local</td><td>Clients with same-town connections.</td></tr>
+    <tr><td>&#9734; Referral Shared</td><td>Clients with shared-property connections.</td></tr>
+  </table>
+</div>
+
+<!-- NOTES & INTEL -->
+<div class="section" id="notes">
+  <div class="section-number">09 &mdash; Notes &amp; Intel</div>
+  <h2>Capture What You Learn</h2>
+  <p class="section-subtitle">Everything you log is visible to the whole team. No lost context between shifts or handoffs.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h4>Company Notes</h4>
+      <p>Yellow sticky-note style. Timestamped. Visible on the card to anyone.</p>
+      <p><em>"Runs 40 stripper wells in Garvin County. Been in business 30 years."</em></p>
+    </div>
+    <div class="card">
+      <h4>Contact Notes</h4>
+      <p>Per-person notes for individual conversations.</p>
+      <p><em>"Spoke with John 3/15 &mdash; interested but wants to wait until after spring break-up."</em></p>
+    </div>
+    <div class="card">
+      <h4>System Intel</h4>
+      <p>Track competitor software &mdash; ShaleXP, ScoutFDC, etc.</p>
+      <p>Feeds "Trash to Cash." Park them now, revisit at renewal time.</p>
+    </div>
+  </div>
+</div>
+
+<!-- AUTO-UPDATES -->
+<div class="section section-warm" id="auto">
+  <div class="section-number">10 &mdash; Auto-Updates</div>
+  <h2>The System Feeds Itself</h2>
+  <p class="section-subtitle">Nobody touches code. New clients and churns update automatically.</p>
+
+  <ul class="checklist">
+    <li><strong>New leads appear automatically</strong> when a new client signs up</li>
+    <li><strong>Contact info is pre-enriched</strong> &mdash; emails and phones are already on the card</li>
+    <li><strong>Dashboard refreshes every 2 hours</strong> or immediately on new client adds</li>
+    <li><strong>Pipedrive stays in sync</strong> &mdash; everything on the dashboard is also in your CRM</li>
+    <li><strong>Your kanban state is preserved</strong> &mdash; cards, notes, activity logs never get overwritten</li>
+    <li><strong>Churned client data auto-removes</strong> &mdash; no stale leads cluttering your board</li>
+  </ul>
+</div>
+
+<!-- CHEAT SHEET -->
+<div class="section section-dark">
+  <div class="section-number">Quick Reference</div>
+  <h2>Cheat Sheet</h2>
+
+  <h3>Daily Call Block</h3>
+  <ul class="checklist">
+    <li>Open dashboard &rarr; filter to your product (GB/TP)</li>
+    <li>Start with Silver tier &mdash; work up to Gold, then Platinum</li>
+    <li>Read the card: who's the connection? what's the property?</li>
+    <li>Pick the right play for the situation</li>
+    <li>Make the call &mdash; name-drop the shared client/property</li>
+    <li>Log the outcome (VM / Bad# / Interested / Meeting)</li>
+    <li>Move the card to the right stage</li>
+    <li>Add company notes and contact notes</li>
+    <li>Log competitor intel if they mention one</li>
+    <li>Run Give 1000 Get 1000 on Gold and Platinum connections</li>
+  </ul>
+
+  <h3>Play Selection</h3>
+  <table>
+    <tr><th>Situation</th><th>What to Use</th><th>Type</th></tr>
+    <tr><td>Cold OND lead, never spoken to</td><td><strong>Play 1: Pattern Interrupt</strong></td><td>Core Play</td></tr>
+    <tr><td>Calling into your existing client base</td><td><strong>Play 2: Give 1000 Get 1000</strong></td><td>Core Play</td></tr>
+    <tr><td>Get their voicemail</td><td><strong>Voicemail</strong></td><td>Sub-Play</td></tr>
+    <tr><td>Receptionist/assistant answers</td><td><strong>Gatekeeper</strong></td><td>Sub-Play</td></tr>
+    <tr><td>Prospect no-showed a meeting</td><td><strong>Coffee No Show</strong></td><td>Sub-Play</td></tr>
+    <tr><td>They say "we have SCADA"</td><td><strong>SCADA Handling</strong></td><td>Handling Script</td></tr>
+  </table>
+
+  <h3>Tier Openers &mdash; The Pattern Interrupt</h3>
+  <p style="color:#aaa; font-size:14px; margin-bottom:16px;"><strong>Rule:</strong> Never reveal who you are or what you sell in the opener. Confirm the property &rarr; get yes-yes &rarr; tiptoe into the connection.</p>
+  <table>
+    <tr><th>Tier</th><th>Confirm the Property (Get Yes-Yes)</th><th>Tiptoe Into Connection</th></tr>
+    <tr><td><strong>Silver</strong><br><span style="font-size:12px;color:#94a3b8;">Shared property, different city</span></td><td>"Do you guys still operate the {Property} in {County}?"<br><em style="color:#aaa;">[They confirm &mdash; "yes"]</em></td><td>"I ask because we're working with several operators with production right next to yours&hellip; curious &mdash; how are you managing production updates from your pumpers?"</td></tr>
+    <tr><td><strong>Gold</strong><br><span style="font-size:12px;color:var(--gold);">Same small town</span></td><td>"Do you guys still operate out of {Town}?"<br><em style="color:#aaa;">[They confirm &mdash; "yes"]</em></td><td>"I ask because we're working with a few operators right there in {Town}, and I was curious &mdash; how are you guys keeping up with production data from the field?"</td></tr>
+    <tr><td><strong>Platinum</strong><br><span style="font-size:12px;color:var(--purple);">Same town + shared property</span></td><td>"Do you still operate the {Property} in {County}?"<br><em style="color:#aaa;">[They confirm &mdash; "yes"]</em></td><td>"Interesting &mdash; we're working with a couple operators right there on that same field. They were telling us how they streamlined their pumper communication&hellip; mind if I ask &mdash; how are you guys handling production updates?"</td></tr>
+  </table>
+</div>
+
+<!-- FOOTER -->
+<div style="background: var(--dark); padding: 48px 60px; text-align: center; border-top: 1px solid #333;">
+  <p style="font-family: 'Libre Baskerville', serif; font-size: 24px; color: #fff; margin-bottom: 8px;">All Sales Are <span style="color: var(--gold);">Local</span></p>
+  <p style="font-size: 14px; color: #666; margin: 0;">Operator Next Door &mdash; Internal Sales Training</p>
+</div>
+
+</body>
+</html>
